@@ -52,3 +52,7 @@ Flow:
     - Receive chat completions response
  - Evaluation
     - How? 
+
+
+V1
+ - ignore indexing for vectors and evals.
