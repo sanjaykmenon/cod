@@ -38,4 +38,17 @@ Flow:
         - Dynamic chunking based on sentence length (does it help to see the text characteristics first?)
  - Metadata Mapping
     - add paragraph / page / file metadata mapping to each token?? (wont this be a big big table?)
-    - 
+    - how and where to store it?
+    - JSONB in Supabase (JSONB is faster although writes are slower)
+ - Vector Indexing (later for multiple pdfs)
+    - how? where? what?
+ - Integration
+    - Query from user convert to embedding
+    - semantic search compare the query embedding against embeddings of document sections to find the closest matches, indicating the most relevant sections.
+        - may need further steps here that includes ranking of results like top k
+        - add max. amount of relevant information upto Chat completions API context limit.
+        - other things????
+    - use metadata to map the origin text and extract and it feed it back into a system prompt + original prompt
+    - Receive chat completions response
+ - Evaluation
+    - How? 
