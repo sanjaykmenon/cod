@@ -56,3 +56,5 @@ Flow:
 
 V1
  - ignore indexing for vectors and evals.
+ - ignore ranking of semantic search
+ - ??
