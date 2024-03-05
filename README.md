@@ -58,3 +58,8 @@ V1
  - ignore indexing for vectors and evals.
  - ignore ranking of semantic search
  - ??
+
+
+ - raw doc parser
+  - modify to use spacy chunker
+  -

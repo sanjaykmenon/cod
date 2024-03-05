@@ -31,8 +31,8 @@ def spacy_chunking_with_overlap(text, max_tokens=4000, overlap=200):
     return chunks
 
 # Example usage
-text = """Your large text document goes here. This could be the content of a legal document, a long article, or any other large text body that you need to chunk into smaller parts for processing with NLP tools or APIs."""
+#text = """Your large text document goes here. This could be the content of a legal document, a long article, or any other large text body that you need to chunk into smaller parts for processing with NLP tools or APIs."""
 
-chunks = spacy_chunking_with_overlap(text, max_tokens=1000, overlap=50)  # Example token limits
-for i, chunk in enumerate(chunks, 1):
-    print(f"Chunk {i}: {chunk[:100]}...")  # Print the first 100 characters of each chunk for demonstration
+# chunks = spacy_chunking_with_overlap(text, max_tokens=1000, overlap=50)  # Example token limits
+# for i, chunk in enumerate(chunks, 1):
+#     print(f"Chunk {i}: {chunk[:100]}...")  # Print the first 100 characters of each chunk for demonstration
