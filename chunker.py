@@ -8,12 +8,14 @@ def spacy_chunking_with_overlap(text, max_tokens=4000, overlap=200):
     doc = nlp(text)
     sentences = list(doc.sents)
 
+
     chunks = []
     current_chunk = []
     current_tokens = 0
     
     for sentence in sentences:
-        sentence_tokens = len(sentence.text.split())
+        filtered_sentence = [token.text for token in sentence if not token.is_stop]
+        sentence_tokens = len(filtered_sentence)
         # If adding this sentence would exceed the max token limit, finalize the current chunk
         if current_tokens + sentence_tokens > max_tokens:
             chunks.append(' '.join(current_chunk))

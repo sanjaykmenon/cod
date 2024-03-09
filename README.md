@@ -62,4 +62,5 @@ V1
 
  - raw doc parser
   - modify to use spacy chunker
-  -
+  - create embeddings with openai and write to lancedb
+  - how to map embeddings with pdf metadata
