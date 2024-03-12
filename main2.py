@@ -21,9 +21,20 @@ openai = registry.get("openai").create() # uses multi-lingual model by default (
 nlp = spacy.load("en_core_web_sm")
 
 def spacy_chunking_with_overlap(text, max_tokens=4000, overlap=200):
-    # Use SpaCy to tokenize the document into sentences
-    doc = nlp(text)
-    sentences = list(doc.sents)
+    
+    if not isinstance(text, str):
+        raise ValueError("Input text must be a string")
+
+    if not isinstance(max_tokens, int) or not isinstance(overlap, int):
+        raise ValueError("max_tokens and overlap must be integers")
+
+
+    try: 
+        # Use SpaCy to tokenize the document into sentences
+        doc = nlp(text)
+        sentences = list(doc.sents)
+    except Exception as e:
+        print(f"Error tokenizing text: {e}")
 
 
     chunks = []
@@ -75,15 +86,19 @@ def process_pdf(pdf_path):
         text = extract_text_tesseract(pdf_path)
 
      # Initialize tokens variable by splitting the text
-    tokens = text.split()  # Tokenize the initial extracted text
-
+    tokens = text.split()  # split via spacing
+    token_type = type(tokens)
     # Sample tokens for demonstration, adjust the number as needed
     sample_tokens = tokens[:10] if len(tokens) > 10 else tokens
     
-    tokens = chunker.spacy_chunking_with_overlap(text, max_tokens=4000, overlap=200)
-    return len(tokens), "Tokenized" if tokens else "Error", sample_tokens
+    #tokens = spacy_chunking_with_overlap(text, max_tokens=4000, overlap=200)
+    return text, "Tokenized" , token_type # Return tokens, status, and a sample of tokens
 
 
+
+db = lancedb.connect("/tmp/db3")
+registry = EmbeddingFunctionRegistry.get_instance()
+func = registry.get("openai").create()
 
 
 class Words(LanceModel):
@@ -93,57 +108,73 @@ class Words(LanceModel):
     pdf_location: str = None # New field for PDF location
 
 # Create the table with the updated schema
-table = db.create_table("words", schema=Words)
+table = db.create_table("words", schema=Words, mode="overwrite")
 
-# Example PDF path
-pdf_path = 'path/to/your/pdf.pdf'
+def insert_pdf_data(pdf_path):
+    try: 
+        text, status, token_type = process_pdf(pdf_path)
+        print(f"type of text: {token_type}")
 
-# Generate tokens and metadata
-tokens, status, sample_tokens = process_pdf(pdf_path)
-pdf_file_name = pdf_path.split('/')[-1] # Extract file name from path
-pdf_location = pdf_path # Use the full path as location
+        if not isinstance(text, list):
+            print(f"Error: Expected tokens to be a list but got {type(text)}")
+            return
 
-# Prepare data for insertion
-data = [
-    {
-        "text": token,
-        "pdf_file_name": pdf_file_name,
-        "pdf_location": pdf_location
-    }
-    for token in tokens
-]
+        pdf_file_name = pdf_path.split('/')[-1]
+        pdf_location = pdf_path
 
-# Insert the data with metadata into the table
-table.add(data)
+
+        token_chunks = spacy_chunking_with_overlap(text, max_tokens=4000, overlap=200)
+
+        for chunk in token_chunks:
+            data = [
+                {
+                    "text": token,
+                    "pdf_file_name":pdf_file_name,
+                    "pdf_location": pdf_location
+                }
+                for token in chunk.split()
+            ]
+
+            #inert data with metadata into table
+            try:
+                table.add(data)
+            except Exception as e:
+                print(f"Error inserting data for {pdf_path}: {e}")
+
+    except Exception as e:
+        print(f"Error in insert_pdf_data for {pdf_path}: {e}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Process PDFs to extract text and tokenize.')
-    parser.add_argument('pdf_directory', type=str, help='Directory containing PDFs')
-    args = parser.parse_args()
+    try: 
+        parser = argparse.ArgumentParser(description='Process PDFs to extract text and tokenize.')
+        parser.add_argument('pdf_directory', type=str, help='Directory containing PDFs')
+        args = parser.parse_args()
 
-    pdf_directory = args.pdf_directory
+        pdf_directory = args.pdf_directory
 
-    # Check if the directory exists
-    if not os.path.isdir(pdf_directory):
-        print(f"The directory {pdf_directory} does not exist.")
-        sys.exit(1)
+        # Check if the directory exists
+        if not os.path.isdir(pdf_directory):
+            print(f"The directory {pdf_directory} does not exist.")
+            sys.exit(1)
 
-    # List PDF files in the directory
-    pdf_files = [os.path.join(pdf_directory, f) for f in os.listdir(pdf_directory) if f.endswith('.pdf')]
-    
-    # Check if there are PDF files in the directory
-    if not pdf_files:
-        print(f"No PDF files found in the directory {pdf_directory}.")
-        sys.exit(1)
+        # List PDF files in the directory
+        pdf_files = [os.path.join(pdf_directory, f) for f in os.listdir(pdf_directory) if f.endswith('.pdf')]
+        
+        # Check if there are PDF files in the directory
+        if not pdf_files:
+            print(f"No PDF files found in the directory {pdf_directory}.")
+            sys.exit(1)
 
-    # Process each PDF file
-    for pdf_file in pdf_files:
-        try:
-            num_tokens, status, sample_tokens = openai_embeddings_doc_parser.process_pdf(pdf_file)
-            print(f"{pdf_file}: {status} with {num_tokens} tokens. Sample tokens: {sample_tokens}")
-        except Exception as e:
-            print(f"Error processing {pdf_file}: {e}")
+        # Process each PDF file
+        for pdf_file in pdf_files:
+            try:
+                insert_pdf_data(pdf_file)
+                print(f"Successfully processed {pdf_file}")
+            except Exception as e:
+                print(f"Error processing {pdf_file}: {e}")
+    except Exception as e:
+        print(f"Error in main: {e}")
 
 if __name__ == "__main__":
     main()
