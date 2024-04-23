@@ -1,66 +1,47 @@
-# llm-play
+# Chain of Density Summarization Technique
 
+This repository demonstrates the implementation of the Chain of Density method for text summarization, using Instructor to fine-tune a GPT-3.5 model. This approach mimics GPT-4's iterative summarization capabilities and substantially reduces latency and costs, while maintaining high entity density in summaries.
 
-### filler text
+## Features
+- **Iterative Summarization**: Apply the Chain of Density technique to create rich, detailed summaries.
+- **Efficiency Gains**: Achieve up to 20x faster processing and 50x cost reduction compared to traditional GPT 4 zero shot prompting methods.
+## Badges
 
-Steps
+Add badges from somewhere like: [shields.io](https://shields.io/)
 
-1. take a local pdf, and tokenize it using openai embeddings.
-2. construct prompt to run queries on pdf
-3. ???
-4. profit.
+![Static Badge](https://img.shields.io/badge/license-MIT-yellow)
+![Static Badge](https://img.shields.io/badge/gpt3.5-8A2BE2)
+![Static Badge](https://img.shields.io/badge/language-python-blue)
 
-Query Embedding: Convert your query into an embedding.
-Semantic Search: Compare the query embedding against embeddings of document sections to find the closest matches, indicating the most relevant sections.
-Extract Text: Extract the text of the top matching sections from the original document.
-Generate Prompt: Use the extracted text as context in a prompt to the Chat Completions API, asking for the information you need or for a summary, etc.
-Receive Response: The Chat Completions API generates a response based on the context provided, effectively using the content of the most relevant sections identified via embeddings.
-Evaluation:
+## Installation 
 
+Clone the repo
 
-Flow:
-
-1. check if PDF is OCR, and read text accordingly.
-2. parse full pdf.
-3. create chunks for data with overlap (clarify?)
-4. create mapping for sentence, paragraph, and page number (if applicable)
-
-
-
- - Raw PDFs
-    - OCR Check
-    - "Naturalize" to regular text based PDF
- - Chunking
-    - 4000 token limit (OpenAI embeddings API limit)
-    - 200 token overlap (for better context, this is variable and arg in spacy)
-    - Spacy
-        - Sentence tokenization
-        - Dynamic chunking based on sentence length (does it help to see the text characteristics first?)
- - Metadata Mapping
-    - add paragraph / page / file metadata mapping to each token?? (wont this be a big big table?)
-    - how and where to store it?
-    - JSONB in Supabase (JSONB is faster although writes are slower)
- - Vector Indexing (later for multiple pdfs)
-    - how? where? what?
- - Integration
-    - Query from user convert to embedding
-    - semantic search compare the query embedding against embeddings of document sections to find the closest matches, indicating the most relevant sections.
-        - may need further steps here that includes ranking of results like top k
-        - add max. amount of relevant information upto Chat completions API context limit.
-        - other things????
-    - use metadata to map the origin text and extract and it feed it back into a system prompt + original prompt
-    - Receive chat completions response
- - Evaluation
-    - How? 
-
-
-V1
- - ignore indexing for vectors and evals.
- - ignore ranking of semantic search
- - ??
-
-
- - raw doc parser
-  - modify to use spacy chunker
-  - create embeddings with openai and write to lancedb
-  - how to map embeddings with pdf metadata
+```
+git clone https://github.com/sanjaykmenon/cod
+cd cod
+```
+Create a virtual environment
+```
+python -m venv venv
+```
+Activate virtual environment (in Windows)
+```
+.\venv\Scripts\activate 
+```
+Activate virtual environment (in macOS / Linux)
+```
+source venv/bin/activate
+```
+Install dependencies
+```
+pip install -r requirements.txt
+```
+Download Spacy Model
+```
+python -m spacy download en_core_web_sm
+```
+Run Locally
+```
+python chain_of_density_summary.py /path/to/your/pdf/document.pdf
+```
