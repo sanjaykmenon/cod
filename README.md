@@ -7,8 +7,6 @@ This repository demonstrates the implementation of the Chain of Density method f
 - **Efficiency Gains**: Achieve up to 20x faster processing and 50x cost reduction compared to traditional GPT 4 zero shot prompting methods.
 ## Badges
 
-Add badges from somewhere like: [shields.io](https://shields.io/)
-
 ![Static Badge](https://img.shields.io/badge/license-MIT-yellow)
 ![Static Badge](https://img.shields.io/badge/gpt3.5-8A2BE2)
 ![Static Badge](https://img.shields.io/badge/language-python-blue)
